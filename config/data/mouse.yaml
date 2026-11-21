@@ -1,5 +1,4 @@
-kind: mouse
+_target_: li.data.mouse.load
 root: ${oc.env:LI_DATA,/mnt/home/gokulg/data/2610_lineage_inpainting_data_avail}
 time_bins: [7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0]
 max_leaves: 1024
-dim: 50

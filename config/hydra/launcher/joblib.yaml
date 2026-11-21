@@ -1,0 +1,5 @@
+# @package hydra.launcher
+# several runs on one gpu at once
+_target_: hydra_plugins.hydra_joblib_launcher.joblib_launcher.JoblibLauncher
+n_jobs: 4
+backend: loky  # separate processes, separate cuda contexts

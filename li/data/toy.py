@@ -2,8 +2,8 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from li.bank import Bank
-from li.tree import Tree
+from li.data.bank import Bank
+from li.data.tree import Tree
 
 
 def grow(rng, name, t0, t_end, dim, rate=2.5):
@@ -46,4 +46,5 @@ def toy(time_bins, n_per_time=3, dim=8, max_leaves=1024, t0=6.5, seed=0, device=
         t = Tree(name, np.array(nodes, dtype=object), parent, time, cell)
         t.build_index(time_bins, max_leaves)
         trees[name] = t
-    return SimpleNamespace(trees=trees, bank=bank, ref=bank, labels=None, time_bins=list(time_bins))
+    return SimpleNamespace(trees=trees, bank=bank, ref=bank, clonal=np.ones(len(names), dtype=bool),
+                           labels=None, time_bins=list(time_bins))

@@ -1,7 +1,7 @@
 import torch
 
-from li import vpsde
-from li.batch import cross_section
+from li.model import vpsde
+from li.data.batch import cross_section
 
 
 def baseline(b, x, anchor):

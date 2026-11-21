@@ -1,0 +1,7 @@
+n_steps: 20000
+n_trees: 1024      # subtrees per record per step
+max_nodes: 256     # subtrees bigger than this lose random leaves
+lookback: [0.0, 0.5]  # subtree roots sit this long before the earlier record's leaves, one drawn per step
+min_snap_time: 7.0
+log_every: 100
+save_every: 5000

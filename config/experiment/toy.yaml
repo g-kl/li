@@ -1,0 +1,13 @@
+# @package _global_
+# small toy run, seconds
+defaults:
+  - override /data: toy
+
+run_name: toy
+train:
+  n_steps: 40
+  n_trees: 16
+  log_every: 10
+  save_every: 20
+align:
+  n_ref: 256

@@ -3,10 +3,10 @@ name = "li"
 version = "0.1.0"
 description = "lineage inpainting, minimal"
 requires-python = ">=3.11"
-dependencies = ["torch", "numpy", "pandas", "h5py", "anndata", "treedata", "networkx", "hydra-core", "pyarrow"]
+dependencies = ["torch", "numpy", "pandas", "h5py", "anndata", "treedata", "networkx", "hydra-core", "hydra-submitit-launcher", "pyarrow"]
 
-[tool.setuptools]
-packages = ["li"]
+[tool.setuptools.packages.find]
+include = ["li*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

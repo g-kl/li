@@ -5,10 +5,10 @@ import numpy as np
 import pytest
 import torch
 
-from li.couple import read_legacy
-from li.data import load_mouse, read_trees
-from li.metrics import germ_crossing
-from li.tree import Tree, to_nx
+from li.eval.couple import read_legacy
+from li.data.mouse import load, read_trees
+from li.eval.metrics import germ_crossing
+from li.data.tree import Tree, to_nx
 
 pytestmark = pytest.mark.slow
 ROOT = "/mnt/home/gokulg/data/2610_lineage_inpainting_data_avail"
@@ -17,7 +17,7 @@ BINS = [7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0]
 
 @pytest.fixture(scope="module")
 def mouse():
-    return load_mouse(ROOT, BINS, 1024, device="cuda")
+    return load(ROOT, BINS, 1024, device="cuda")
 
 
 def test_shapes(mouse):
@@ -57,6 +57,6 @@ def test_germ_matches_old(mouse, old):
 
 
 def test_old_weights_load(mouse):
-    from li.net import load_sampler
+    from li.model.net import load_sampler
     net = load_sampler(f"{ROOT}/model")
     assert next(net.parameters()).is_cuda

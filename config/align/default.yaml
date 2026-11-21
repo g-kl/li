@@ -1,0 +1,5 @@
+weights: [1.0, 0.25, 0.25]  # marginal, path, common ancestor
+n_ref: 4096
+n_samples: 16
+min_samples: 8
+clonal: true       # marginal against lineage-traced cells only; all devmap cells hurt early times

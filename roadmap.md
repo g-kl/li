@@ -33,6 +33,7 @@ kept on purpose (to ablate later): sum over strata, x1-prediction output, `n_tre
 ## parity (phase 0 bar)
 
 germ-layer crossing, pooled over edges, same coupling procedure as the paper (sampler, 8 steps, snap within one bin either side, nodes >= E7.0).
+each refit below is `python train.py experiment=<run>` (`config/experiment/`); `cand1` is the default config.
 
 | | pooled germ crossing |
 |---|---|
@@ -57,7 +58,7 @@ the thing a scientist should touch is a coupling: for each internal node of a tr
 - notebooks:
   - `00_quickstart`: toy trees, train in the notebook, sample, couple.
   - `01_mouse`: load the released model, couple one clone, look at it.
-- a reader for old pickles exists already (`li.couple.read_legacy`).
+- a reader for old pickles exists already (`li.eval.couple.read_legacy`).
 
 ## phase 2: confidence (are the predictions silly?)
 
@@ -70,7 +71,7 @@ the thing a scientist should touch is a coupling: for each internal node of a tr
 - **like-for-like.** compare the model's posterior-mean coupling (average K samples, then snap) against mean pool, and a single model sample against a noise-matched mean pool. this is the fair version of the mean-pool comparison. reviewers may well ask about it.
 - noise bands from K samples x seeds on every number.
 - held-out clones as the default eval split (`supp_holdout` held out 11 of 56 clones).
-- port the other five metrics into `li.metrics` with tidy outputs:
+- port the other five metrics into `li.eval.metrics` with tidy outputs:
   - oscillation
   - linkage (fix the normalisation that blows up at early cuts)
   - hox (only 11 pairs; consider more genes)
@@ -86,7 +87,7 @@ the thing a scientist should touch is a coupling: for each internal node of a tr
 
 ## phase 3: ablations and the grid on the new core
 
-- each old quirk as a one-off override run (max_leaves 128, max_nodes 128, old root-time sampler, clonal marginal bank)
+- each old quirk as a one-off run in `config/experiment/` (max_leaves 128, max_nodes 128, old root-time sampler, clonal marginal bank)
 - root lookback of 1.0 so path features become real multi-time paths
 - weight-decay exclusions (norms, embeddings, bias scale)
 - id vs nn vs alternating pairing; cfm vs vp-sde; delta vs plain

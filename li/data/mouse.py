@@ -7,15 +7,8 @@ import numpy as np
 import pandas as pd
 from anndata.io import read_elem
 
-from li.bank import Bank
-from li.tree import Tree, from_nx, prune
-
-
-def load(cfg, device="cpu"):
-    if cfg.kind == "toy":
-        from li.toy import toy
-        return toy(cfg.time_bins, dim=cfg.dim, max_leaves=cfg.max_leaves, device=device)
-    return load_mouse(cfg.root, cfg.time_bins, cfg.max_leaves, device=device)
+from li.data.bank import Bank
+from li.data.tree import Tree, from_nx, prune
 
 
 def read_trees(path, cache="cache"):
@@ -55,7 +48,7 @@ def read_labels(subtype_csv, type_csv):
     return out
 
 
-def load_mouse(root, time_bins, max_leaves, device="cpu"):
+def load(root, time_bins, max_leaves, device="cpu"):
     emb = os.path.join(root, "embryos")
     bank, obs = read_bank(os.path.join(emb, "devmap_latents.h5ad"), device)
     rows = pd.Series(np.arange(len(bank.names)), index=bank.names)

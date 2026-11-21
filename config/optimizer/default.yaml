@@ -1,0 +1,6 @@
+lr: 1.0e-3
+weight_decay: 0.01
+eps: 1.0e-6
+warmup: 500
+clip: 4.0
+ema: 0.999

@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import torch
 
-from li.batch import collate
-from li.model import sample
+from li.data.batch import collate
+from li.model.inpaint import sample
 
 
 def chunks(items, max_b=256, budget=2e8):

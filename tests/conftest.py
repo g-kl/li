@@ -8,7 +8,7 @@ OLD = "/mnt/home/gokulg/lineage-inpainting"
 
 @pytest.fixture(scope="session")
 def toy():
-    from li.toy import toy
+    from li.data.toy import toy
     return toy([7.0, 7.5, 8.0, 8.5], n_per_time=2, dim=4)
 
 

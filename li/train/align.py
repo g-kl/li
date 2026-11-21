@@ -1,6 +1,6 @@
 import torch
 
-from li.batch import cross_section, max_child_time
+from li.data.batch import cross_section, max_child_time
 
 SLICE_EPS = 0.05  # cut just after a bin so nodes sitting on it fall inside
 

@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import torch
 
-from li.couple import couple
-from li.metrics import germ_crossing
-from li.net import TreeNet
-from li.tree import Tree
+from li.eval.couple import couple
+from li.eval.metrics import germ_crossing
+from li.model.net import TreeNet
+from li.data.tree import Tree
 
 
 def test_couple_toy(toy):

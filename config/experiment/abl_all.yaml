@@ -1,0 +1,8 @@
+# @package _global_
+# every old behaviour at once (parity)
+run_name: abl_all
+data:
+  max_leaves: 128
+train:
+  max_nodes: 128
+  min_snap_time: -1.0e9  # no cutoff

@@ -4,11 +4,11 @@ import numpy as np
 import torch
 from omegaconf import OmegaConf
 
-from li.align import energy
-from li.batch import collate
-from li.model import baseline, impute, sample
-from li.net import TreeNet
-from li.tree import Tree
+from li.train.align import energy
+from li.data.batch import collate
+from li.model.inpaint import baseline, impute, sample
+from li.model.net import TreeNet
+from li.data.tree import Tree
 from conftest import subtrees
 
 
@@ -82,7 +82,7 @@ def test_matches_old_modules(toy, old):
 
 
 def test_train_smoke(toy, tmp_path):
-    from li.train import step
+    from li.train.loop import step
     cfg = OmegaConf.create(dict(
         model=dict(d=16, heads=2, layers=1, hidden=32),
         train=dict(n_trees=8, max_nodes=64, lookback=[0.0, 0.5], min_snap_time=7.0),

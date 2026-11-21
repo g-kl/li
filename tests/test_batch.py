@@ -2,8 +2,8 @@ import networkx as nx
 import numpy as np
 import torch
 
-from li.batch import collate, cross_section, subsample
-from li.tree import to_nx
+from li.data.batch import collate, cross_section, subsample
+from li.data.tree import to_nx
 from conftest import subtrees
 
 

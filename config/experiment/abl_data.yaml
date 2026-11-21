@@ -1,0 +1,8 @@
+# @package _global_
+# main_v1 with the old caps and the clonal marginal bank
+run_name: abl_data
+data:
+  max_leaves: 128
+train:
+  max_nodes: 128
+  lookback: [0.5]

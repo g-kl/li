@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 
-from li.tree import EPS, Tree, from_nx, prune, to_nx
+from li.data.tree import EPS, Tree, from_nx, prune, to_nx
 
 
 def test_preorder(toy):
