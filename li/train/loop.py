@@ -11,7 +11,8 @@ from hydra.utils import instantiate
 
 from li.data.bank import Bank
 from li.data.batch import collate
-from li.model.inpaint import anchor_mask, impute, sampler_loss
+from li.model.imputer import snap
+from li.model.inpaint import anchor_mask, sampler_loss
 from li.model.net import TreeNet
 from li.train.align import align_loss
 
@@ -34,17 +35,8 @@ def draw(tree, b, n):
     return [(tree, tree.subtree(r, b), tree.cell) for r in roots]
 
 
-def nn_pair(b, x, anchor, bank, min_snap_time):
-    """snap imputed nodes (not observed, not anchors) to their nearest real cell."""
-    m = b.mask & ~b.obs & ~anchor & (b.time >= min_snap_time)
-    rows, _ = bank.nn(x[m].detach(), b.time[m])
-    out = x.clone()
-    out[m] = bank.emb[rows]
-    return out
-
-
 def nets(dim, cfg):
-    return TreeNet(dim, **cfg), TreeNet(dim, flow=True, **cfg)
+    return instantiate(cfg.imputer, dim=dim), TreeNet(dim, flow=True, **cfg.model)
 
 
 def step(i, data, imp, smp, cfg):
@@ -56,14 +48,14 @@ def step(i, data, imp, smp, cfg):
         if all(len(r.index.get(b, [])) for r in recs):
             break
     batches = [collate(draw(r, b, tr.n_trees), data.bank.emb, tr.max_nodes) for r in recs]
-    xs = [impute(imp, bt) for bt in batches]
+    xs = [imp.fill(bt, data.bank) for bt in batches]
     align, terms = align_loss(batches, xs, data.ref, data.time_bins, cfg.align.weights,
                               cfg.align.n_ref, cfg.align.n_samples, cfg.align.min_samples)
     split = 0
     for bt, x in zip(batches, xs):
         anchor = anchor_mask(bt)
         if i % 2 == 1:  # odd steps train the sampler on real cells
-            x = nn_pair(bt, x, anchor, data.bank, tr.min_snap_time)
+            x = snap(bt, x, anchor, data.bank, tr.min_snap_time)
         split = split + sampler_loss(smp, bt, x, anchor)
     return split + align, dict(split=split.item(), align=align.item(), **terms, bin=b)
 
@@ -82,7 +74,7 @@ def fit(cfg, out):
         keep = data.clonal
         data.ref = Bank(data.bank.emb[torch.as_tensor(keep, device=cfg.device)], data.bank.time[keep], data.bank.names[keep], cfg.device)
     dim = data.bank.emb.shape[1]
-    imp, smp = (m.to(cfg.device) for m in nets(dim, cfg.model))
+    imp, smp = (m.to(cfg.device) for m in nets(dim, cfg))
     params = list(imp.parameters()) + list(smp.parameters())
     tr, op = cfg.train, cfg.optimizer
     opt = torch.optim.AdamW(params, lr=op.lr, weight_decay=op.weight_decay, eps=op.eps)

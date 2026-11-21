@@ -104,3 +104,10 @@ def prune(tree):
     new = np.cumsum(keep) - 1
     parent = np.where(tree.parent[keep] >= 0, new[np.maximum(tree.parent[keep], 0)], -1)
     return Tree(tree.name, tree.nodes[keep], parent, tree.time[keep], tree.cell[keep])
+
+
+def scramble(tree, rng):
+    """leaf cells permuted within the tree: same topology and composition, no lineage signal."""
+    cell = tree.cell.copy()
+    cell[tree.leaf] = rng.permutation(cell[tree.leaf])
+    return Tree(tree.name, tree.nodes, tree.parent, tree.time, cell)

@@ -59,6 +59,10 @@ def load(root, time_bins, max_leaves, device="cpu"):
         t = prune(t)
         t.build_index(time_bins, max_leaves)
         trees[name] = t
-    labels = read_labels(os.path.join(emb, "final_subtype_v2_lower.csv"), os.path.join(emb, "final_type_info_v2_lower.csv"))
+    types = os.path.join(emb, "final_type_info_v2_lower.csv")
+    labels = read_labels(os.path.join(emb, "final_subtype_v2_lower.csv"), types)
+    ti = pd.read_csv(types)
     return SimpleNamespace(trees=trees, bank=bank, ref=bank, clonal=obs["clone"].notna().values,
-                           labels=labels, obs=obs, time_bins=list(time_bins))
+                           labels=labels, obs=obs, time_bins=list(time_bins),
+                           umap=pd.read_csv(os.path.join(emb, "final_umap.csv"), index_col=0),
+                           colors=dict(zip(ti["cell_type"], ti["type_color"])))

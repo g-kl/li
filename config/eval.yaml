@@ -4,6 +4,8 @@ defaults:
 
 run_name: ???
 ckpt: runs/${run_name}  # a run dir, or ${data.root}/model (paper weights), or an old coupling .pkl
+fill: sampler  # sampler, posterior_mean, mean_pool, random_descendant, random_cell, modal_descendant
+scramble: false  # permute leaf cells within each tree first (control)
 n_samples: 4
 device: cuda
 

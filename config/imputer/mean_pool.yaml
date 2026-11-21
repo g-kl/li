@@ -1,0 +1,3 @@
+# nonparametric: mean pool, snapped to the nearest real cell
+_target_: li.model.imputer.MeanPool
+min_snap_time: ${train.min_snap_time}

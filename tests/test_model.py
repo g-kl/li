@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 import torch
 from omegaconf import OmegaConf
 
@@ -81,15 +82,17 @@ def test_matches_old_modules(toy, old):
     assert torch.allclose(sample(smp, b, b.x, b.obs, n_steps=4), want, atol=1e-3)
 
 
-def test_train_smoke(toy, tmp_path):
-    from li.train.loop import step
+@pytest.mark.parametrize("imputer", ["Learned", "MeanPool"])
+def test_train_smoke(toy, imputer):
+    from li.train.loop import nets, step
+    model = dict(d=16, heads=2, layers=1, hidden=32)
     cfg = OmegaConf.create(dict(
-        model=dict(d=16, heads=2, layers=1, hidden=32),
+        model=model, imputer=dict(_target_=f"li.model.imputer.{imputer}", **(model if imputer == "Learned" else {})),
         train=dict(n_trees=8, max_nodes=64, lookback=[0.0, 0.5], min_snap_time=7.0),
         align=dict(weights=[1.0, 0.25, 0.25], n_ref=64, n_samples=4, min_samples=2)))
     torch.manual_seed(0)
     np.random.seed(0)
-    imp, smp = TreeNet(4, **cfg.model), TreeNet(4, flow=True, **cfg.model)
+    imp, smp = nets(4, cfg)
     opt = torch.optim.Adam(list(imp.parameters()) + list(smp.parameters()), 1e-3)
     for i in range(6):
         loss, m = step(i, toy, imp, smp, cfg)

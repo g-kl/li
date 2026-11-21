@@ -1,0 +1,6 @@
+# one-step transformer on top of mean pool, same shape as the sampler
+_target_: li.model.imputer.Learned
+d: ${model.d}
+heads: ${model.heads}
+layers: ${model.layers}
+hidden: ${model.hidden}

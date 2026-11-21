@@ -2,6 +2,7 @@ defaults:
   - _self_
   - data: mouse
   - model: default
+  - imputer: learned
   - optimizer: default
   - train: default
   - align: default

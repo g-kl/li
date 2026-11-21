@@ -1,6 +1,7 @@
 import glob
 import os
 
+import pytest
 from hydra import compose, initialize
 from omegaconf import OmegaConf
 
@@ -20,8 +21,10 @@ def test_configs_compose():
         assert cfg.ckpt == "runs/x"
 
 
-def test_fit_toy(tmp_path):
+@pytest.mark.parametrize("imputer", ["learned", "mean_pool"])
+def test_fit_toy(tmp_path, imputer):
     with initialize(config_path="../config", version_base=None):
-        cfg = compose("config", ["experiment=toy", "device=cpu", "train.n_steps=2", "model.d=16", "model.layers=1"])
+        cfg = compose("config", ["experiment=toy", "device=cpu", "train.n_steps=2", "model.d=16", "model.layers=1",
+                                 f"imputer={imputer}"])
     fit(cfg, str(tmp_path))
     assert os.path.exists(tmp_path / "ckpt_2.pt") and os.path.exists(tmp_path / "metrics.csv")
