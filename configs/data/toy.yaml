@@ -1,0 +1,4 @@
+kind: toy
+time_bins: [7.0, 7.5, 8.0, 8.5]
+max_leaves: 1024
+dim: 8

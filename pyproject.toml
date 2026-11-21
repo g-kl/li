@@ -1,0 +1,14 @@
+[project]
+name = "li"
+version = "0.1.0"
+description = "lineage inpainting, minimal"
+requires-python = ">=3.11"
+dependencies = ["torch", "numpy", "pandas", "h5py", "anndata", "treedata", "networkx", "hydra-core", "pyarrow"]
+
+[tool.setuptools]
+packages = ["li"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+markers = ["slow: needs the real data and a gpu"]
+addopts = "-m 'not slow'"

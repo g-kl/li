@@ -1,0 +1,42 @@
+defaults:
+  - data: mouse
+  - _self_
+
+run_name: ???
+seed: 42
+device: cuda
+resume: false
+
+model:
+  d: 128
+  heads: 4
+  layers: 4
+  hidden: 512
+
+train:
+  n_steps: 20000
+  n_trees: 1024      # subtrees per record per step
+  max_nodes: 256     # subtrees bigger than this lose random leaves
+  lookback: [0.0, 0.5]  # subtree roots sit this long before the earlier record's leaves, one drawn per step
+  lr: 1.0e-3
+  weight_decay: 0.01
+  eps: 1.0e-6
+  warmup: 500
+  clip: 4.0
+  ema: 0.999
+  min_snap_time: 7.0
+  log_every: 100
+  save_every: 5000
+
+align:
+  weights: [1.0, 0.25, 0.25]  # marginal, path, common ancestor
+  n_ref: 4096
+  n_samples: 16
+  min_samples: 8
+  clonal: true       # marginal against lineage-traced cells only; all devmap cells hurt early times
+
+hydra:
+  run:
+    dir: runs/${run_name}
+  job:
+    chdir: false
