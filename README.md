@@ -5,6 +5,7 @@ lineage inpainting, minimal. a rewrite of [lineage-inpainting](https://github.co
 ```
 train.py        hydra entry: train a model into runs/<run_name>/
 evaluate.py     hydra entry: coupling samples + germ crossing for a run, any fill
+perturb.py      hydra entry: forward knockout rollout for a run, K samples
 li/
   data/
     tree.py     lineage trees as flat arrays in dfs preorder, subtree index per time bin, scramble
@@ -25,12 +26,19 @@ li/
     fills.py    sampler, posterior mean, mean pool, random descendant, random cell
     nodes.py    labels, per-node summaries, anndata export, clade tables and picking
     metrics.py  germ-layer crossing
+  perturb/
+    gene.py     gene expression per bank cell: scvi decoder (bundle only) or raw counts
+    project.py  snap to the nearest real cell, then onto the nearest one with the gene off
+    rollout.py  forward rollout over the time grid, with the off-manifold score per node
+    pick.py     clades with a gene-expressing progenitor and a target plus its control
   plot/
     tree.py     clade card: dendrogram over time, coloured by predicted type
     umap.py     a clade's ancestors traced on the atlas umap
-notebooks/      01_mouse (couple one clone, the output tables), 02_look (clade gallery for a run)
+notebooks/      01_mouse (couple one clone, the output tables), 02_look (clade gallery for a run),
+                03_perturb (the Tbx5 knockout)
 config/
   config.yaml   root for train.py; eval.yaml is the root for evaluate.py
+  perturb.yaml  root for perturb.py
   data/ model/ imputer/ optimizer/ train/ align/
   experiment/   named runs (the parity bisect, toy)
   hydra/launcher/  lids, kempner (slurm via submitit), joblib
@@ -68,5 +76,32 @@ each writes `coupling_<fill>.parquet` (tree, node, time, cell, dist, sample), `n
 slurm jobs need `-m` (multirun); submitit logs land in `runs/.submitit/<job id>/`. `hydra/launcher/lids.yaml` and `kempner.yaml` carry our partitions and accounts.
 
 data defaults to the zenodo bundle at `/mnt/home/gokulg/data/2610_lineage_inpainting_data_avail` (`embryos/`, `model/`); set `LI_DATA` to point elsewhere. the raw tree read is cached in `cache/`.
+
+## perturbation
+
+`perturb.py` rolls a knockout forward along the observed topology, from `start_time` to
+`target_time`. At each time bin a state is snapped to its nearest real cell and then
+projected onto the nearest cell that does not express the gene; a lineage whose gene was
+on is resampled from there by the sampler (never the imputer), the rest carry their own
+state. Control and knockout share a node set, so only states differ.
+
+```bash
+python perturb.py run_name=cand1 mode=control            # the baseline every diff needs
+python perturb.py run_name=cand1 mode=knockout           # Tbx5, E8.0 -> E9.5, 8 samples
+python perturb.py run_name=cand1 mode=knockout source=counts
+```
+
+"expressing" comes from `source`: `decoder` (default) is the bundled scVI model's
+`px_scale` for the gene, in parts per million, cutoff 100; `counts` is the raw count,
+cutoff 0, read from the old states h5ad, which is **not** in the zenodo bundle. The
+decoder path needs nothing but the bundle and avoids counting dropouts as gene-off
+(Tbx5 is detected in only 73% of the cells that express it).
+
+Each run writes `perturb_<gene>_<mode>.parquet` (tree, node, time, parent, cell, dist,
+proj_dist, local_dist, changed, score, sample) and `perturb_clades_<gene>.csv`. Nothing
+about the off-manifold policy is baked in: `score` is the path max of
+`proj_dist / local_dist` over nodes whose gene was on, so a node is off-manifold at a
+given ratio exactly when `score > ratio`, and prune (drop it) and freeze (fall back to
+the last on-manifold ancestor, via `parent`) are both derivable afterwards.
 
 `evaluate.py` also takes the old model dir or an old coupling pickle as `ckpt`, so old and new numbers come from the same code.

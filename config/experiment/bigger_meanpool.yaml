@@ -1,0 +1,13 @@
+# @package _global_
+# 11.6m sampler (wider, same depth and heads as big_meanpool), mean pool imputer, half the steps
+defaults:
+  - override /imputer: mean_pool
+
+run_name: bigger_meanpool
+model:
+  d: 384
+  heads: 8
+  layers: 6
+  hidden: 1536
+train:
+  n_steps: 10000

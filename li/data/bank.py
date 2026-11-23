@@ -23,13 +23,14 @@ class Bank:
         return r if len(r) <= n else r[torch.randperm(len(r), device=r.device)[:n]]
 
     @torch.no_grad()
-    def nn(self, q, t, window=1, chunk=512):
-        """nearest cell to each query among its own time bucket and `window` buckets either side.
-        returns bank rows and l2 distances."""
+    def nn(self, q, t, window=1, chunk=512, k=1):
+        """k nearest cells to each query among its own time bucket and `window` buckets
+        either side. returns bank rows and l2 distances, shaped (n,) for k=1 else (n, k)."""
         q = q.float()
         bi = self.bucket(t)
-        rows = torch.empty(len(q), dtype=torch.long, device=q.device)
-        dist = torch.empty(len(q), device=q.device)
+        shape = (len(q),) if k == 1 else (len(q), k)
+        rows = torch.empty(shape, dtype=torch.long, device=q.device)
+        dist = torch.empty(shape, device=q.device)
         for i in bi.unique().tolist():
             sel = torch.nonzero(bi == i).squeeze(1)
             cand = torch.cat(self.rows[max(0, i - window):i + window + 1])
@@ -37,7 +38,13 @@ class Bank:
             for s in range(0, len(sel), chunk):
                 qi = q[sel[s:s + chunk]]
                 d2 = qi.pow(2).sum(-1, keepdim=True) + esq[None] - 2 * qi @ e.T
-                j = d2.argmin(1)
+                if k == 1:
+                    j = d2.argmin(1)
+                    dist[sel[s:s + chunk]] = (qi - e[j]).norm(dim=-1)
+                else:
+                    j = d2.topk(min(k, len(cand)), -1, largest=False).indices
+                    if j.shape[1] < k:  # bucket smaller than k, repeat the farthest
+                        j = torch.cat([j, j[:, -1:].expand(-1, k - j.shape[1])], 1)
+                    dist[sel[s:s + chunk]] = (qi[:, None] - e[j]).norm(dim=-1)
                 rows[sel[s:s + chunk]] = cand[j]
-                dist[sel[s:s + chunk]] = (qi - e[j]).norm(dim=-1)
         return rows, dist

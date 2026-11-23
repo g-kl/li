@@ -19,6 +19,8 @@ def test_configs_compose():
             OmegaConf.to_container(cfg, resolve=True)
         cfg = compose("eval", ["run_name=x"])
         assert cfg.ckpt == "runs/x"
+        cfg = compose("perturb", ["run_name=x"])
+        assert cfg.ckpt == "runs/x" and cfg.gene == "Tbx5"
 
 
 @pytest.mark.parametrize("imputer", ["learned", "mean_pool"])

@@ -1,0 +1,26 @@
+defaults:
+  - _self_
+  - data: mouse
+
+run_name: ???
+ckpt: runs/${run_name}
+gene: Tbx5
+source: decoder  # decoder (scvi px_scale, bundle only) or counts (the old states h5ad)
+cutoff: null  # default: 100 per million for the decoder, 0 for counts
+mode: knockout  # knockout, sham (resample the same lineages but move nothing) or control
+start_time: 8.0
+target_time: 9.5
+window: 1  # snap window in time bins, 1 is the coupling protocol
+n_steps: 16
+n_samples: 8
+device: cuda
+
+hydra:
+  run:
+    dir: runs/${run_name}
+  sweep:
+    dir: runs
+    subdir: ${run_name}
+  output_subdir: null
+  job:
+    chdir: false

@@ -49,8 +49,12 @@ def step(i, data, imp, smp, cfg):
             break
     batches = [collate(draw(r, b, tr.n_trees), data.bank.emb, tr.max_nodes) for r in recs]
     xs = [imp.fill(bt, data.bank) for bt in batches]
-    align, terms = align_loss(batches, xs, data.ref, data.time_bins, cfg.align.weights,
-                              cfg.align.n_ref, cfg.align.n_samples, cfg.align.min_samples)
+    # a parameter-free imputer has nothing to align, so the alignment is only a log line
+    if next(imp.parameters(), None) is not None or i % tr.log_every == 0 or i == tr.n_steps - 1:
+        align, terms = align_loss(batches, xs, data.ref, data.time_bins, cfg.align.weights,
+                                  cfg.align.n_ref, cfg.align.n_samples, cfg.align.min_samples)
+    else:
+        align, terms = xs[0].new_zeros(()), dict(marginal=0.0, path=0.0, ca=0.0)
     split = 0
     for bt, x in zip(batches, xs):
         anchor = anchor_mask(bt)
